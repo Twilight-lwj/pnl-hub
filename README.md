@@ -24,7 +24,7 @@
 | Android | `发布版/组合收益回测中枢-发布版1.0.4.apk` | 不入库。包名 `com.pnlboard.pnlhub`，versionCode 4，包内 versionName 1.0.3 |
 | Linux | `发布版/组合收益回测中枢-发布版1.0.4.AppImage` | 不入库。type2 AppImage，`--version` 输出 `pnlhub 1.0.3` |
 
-网页版是**页面源码本体**，`make_clean_page.py` 的输入是含数据的调试页，不在仓库内，因此必须随仓库保存；APK 与 AppImage 都能由它重新构建。
+网页版是**页面源码本体**，`源码/web/make_clean_page.py` 的输入是含数据的调试页，不在仓库内，因此必须随仓库保存；APK 与 AppImage 都能由它重新构建。
 
 ## 版本历史
 
