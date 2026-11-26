@@ -8,15 +8,12 @@ ROOT="$(cd "$HERE/../.." && pwd)"
 APP=pnlhub
 NAME=组合收益回测中枢
 VER=1.0.3
+# 解释器：环境变量 PY 优先，否则取 PATH 里的 python3（需已装 PyInstaller）
 if [ -z "${PY:-}" ]; then
-    for _c in "${HOME}/.workbuddy/binaries/python/envs/default/bin/python" \
-              "${HOME}/.local/share/workbuddy/binaries/python/envs/default/bin/python"; do
-        [ -x "$_c" ] && { PY="$_c"; break; }
-    done
-    [ -n "${PY:-}" ] || PY="$(command -v python3 || true)"
+    PY="$(command -v python3 || true)"
 fi
 [ -n "${PY:-}" ] || { echo "找不到 python3：请用 PY=/path/to/python3 指定"; exit 1; }
-DIST="${DIST:-$ROOT/发布版}"
+DIST="${DIST:-$ROOT/发行版}"
 PAGE="$ROOT/${NAME}_网页版.html"
 
 for f in "$PAGE" "$HERE/pnlhub.png" "$HERE/runtime-x86_64" "$HERE/app.desktop" "$HERE/app.py"; do
@@ -62,7 +59,7 @@ chmod +x "$AD/AppRun"
 mksquashfs "$AD" "$WORK/app.squashfs" -root-owned -noappend -mkfs-time 0 \
   -comp zstd -Xcompression-level 19 -b 262144 >/dev/null
 cat "$WORK/runtime" "$WORK/app.squashfs" > "$WORK/out.AppImage"
-OUT="$DIST/${NAME}-发布版${VER}.AppImage"
+OUT="$DIST/${NAME}-发行版${VER}.AppImage"
 mv -f "$WORK/out.AppImage" "$OUT"
 chmod +x "$OUT"
 

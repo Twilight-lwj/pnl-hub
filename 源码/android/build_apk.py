@@ -28,8 +28,8 @@ BASE = pathlib.Path(os.environ.get("BASE", str(HERE / "base.apk")))
 # 页面只有一份（网页版即页面源码本体），内嵌页与它逐字节相同，不再单独存副本
 # 文件名不带版本号，版本号只写在 README.md 与 版本更新说明.md
 PAGE = pathlib.Path(os.environ.get("PAGE", str(ROOT / ("%s_网页版.html" % LABEL))))
-DIST = pathlib.Path(os.environ.get("DIST", str(ROOT / "发布版")))
-OUT = DIST / ("%s-发布版%s.apk" % (LABEL, VERSION_NAME))
+DIST = pathlib.Path(os.environ.get("DIST", str(ROOT / "发行版")))
+OUT = DIST / ("%s-发行版%s.apk" % (LABEL, VERSION_NAME))
 
 
 def _find_ks():
@@ -46,9 +46,9 @@ KS = _find_ks()
 _TOOLS_ENV = os.environ.get("ANDROID_TOOLS", "")
 TOOLS = pathlib.Path(_TOOLS_ENV) if _TOOLS_ENV else None
 if TOOLS is None:
-    for _cand in (pathlib.Path.home() / ".workbuddy/binaries/android-tools",
-                  pathlib.Path.home() / "android-tools",
-                  pathlib.Path("/opt/android-tools")):
+    for _cand in (pathlib.Path.home() / "android-tools",
+                  pathlib.Path("/opt/android-tools"),
+                  pathlib.Path("/usr/local/android-tools")):
         if (_cand / "android-14").is_dir():
             TOOLS = _cand
             break
