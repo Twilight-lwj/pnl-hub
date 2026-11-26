@@ -16,8 +16,8 @@ if [ -z "${PY:-}" ]; then
     [ -n "${PY:-}" ] || PY="$(command -v python3 || true)"
 fi
 [ -n "${PY:-}" ] || { echo "找不到 python3：请用 PY=/path/to/python3 指定"; exit 1; }
-DIST="${DIST:-$ROOT}"
-PAGE="$ROOT/${NAME}_网页版_v${VER}.html"
+DIST="${DIST:-$ROOT/发布版}"
+PAGE="$ROOT/${NAME}_网页版.html"
 
 for f in "$PAGE" "$HERE/pnlhub.png" "$HERE/runtime-x86_64" "$HERE/app.desktop" "$HERE/app.py"; do
   [ -s "$f" ] || { echo "缺少构建资产：$f"; exit 1; }
@@ -62,7 +62,7 @@ chmod +x "$AD/AppRun"
 mksquashfs "$AD" "$WORK/app.squashfs" -root-owned -noappend -mkfs-time 0 \
   -comp zstd -Xcompression-level 19 -b 262144 >/dev/null
 cat "$WORK/runtime" "$WORK/app.squashfs" > "$WORK/out.AppImage"
-OUT="$DIST/${NAME}_Linux免安装包_v${VER}.AppImage"
+OUT="$DIST/${NAME}-发布版${VER}.AppImage"
 mv -f "$WORK/out.AppImage" "$OUT"
 chmod +x "$OUT"
 

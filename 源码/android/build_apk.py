@@ -16,7 +16,7 @@ import tempfile
 import zipfile
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parent.parent   # 版本目录（源码/android → 源码 → 版本目录）
+ROOT = HERE.parent.parent   # 仓库根（源码/android → 源码 → 仓库根）
 sys.path.insert(0, str(HERE))
 from axml import Axml  # noqa: E402
 
@@ -26,10 +26,10 @@ VERSION_CODE = 4
 
 BASE = pathlib.Path(os.environ.get("BASE", str(HERE / "base.apk")))
 # 页面只有一份（网页版即页面源码本体），内嵌页与它逐字节相同，不再单独存副本
-PAGE = pathlib.Path(os.environ.get(
-    "PAGE", str(ROOT / ("%s_网页版_v%s.html" % (LABEL, VERSION_NAME)))))
-DIST = pathlib.Path(os.environ.get("DIST", str(ROOT)))
-OUT = DIST / ("%s_Android安装包_v%s.apk" % (LABEL, VERSION_NAME))
+# 文件名不带版本号，版本号只写在 README.md 与 版本更新说明.md
+PAGE = pathlib.Path(os.environ.get("PAGE", str(ROOT / ("%s_网页版.html" % LABEL))))
+DIST = pathlib.Path(os.environ.get("DIST", str(ROOT / "发布版")))
+OUT = DIST / ("%s-发布版%s.apk" % (LABEL, VERSION_NAME))
 
 
 def _find_ks():

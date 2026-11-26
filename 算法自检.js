@@ -5,7 +5,7 @@ const vm = require('vm');
 const path = require('path');
 
 const V = __dirname;
-const htmlPath = path.join(V, '组合收益回测中枢_网页版_v1.0.3.html');
+const htmlPath = path.join(V, '组合收益回测中枢_网页版.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
 let pass = 0, fail = 0;
 function ok(cond, msg) { if (cond) { pass++; console.log('  ✓ ' + msg); } else { fail++; console.log('  ✗ ' + msg); } }
@@ -71,12 +71,15 @@ if (bs) {
   ok(body.includes('snapDay'), '非交易日流水归到最近交易日');
 }
 
-// ---- 4. 交付物存在性 ----
+// ---- 4. 交付物存在性（发布版不入库，未构建时跳过而非判失败）----
 console.log('\n[4] 交付物');
 for (const f of [
-  '组合收益回测中枢_Android安装包_v1.0.3.apk',
-  '组合收益回测中枢_Linux免安装包_v1.0.3.AppImage',
-]) ok(fs.existsSync(path.join(V, f)), f + ' 存在');
+  '发布版/组合收益回测中枢-发布版1.0.4.apk',
+  '发布版/组合收益回测中枢-发布版1.0.4.AppImage',
+]) {
+  if (fs.existsSync(path.join(V, f))) ok(true, f + ' 存在');
+  else console.log('  - ' + f + ' 未构建，跳过');
+}
 
 console.log('\n结果：%d 通过，%d 失败', pass, fail);
 process.exit(fail ? 1 : 0);
