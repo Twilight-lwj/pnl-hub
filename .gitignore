@@ -1,0 +1,23 @@
+# 签名私钥（绝不能进公开仓库）
+*.jks
+*.keystore
+密钥/
+
+# 构建产物（不入库；按 打包说明.md 本地构建）
+*.apk
+*.AppImage
+*_安卓内嵌页_*.html
+dist/
+build/
+# base.apk 是模式 B 的基础壳，属构建输入，必须入库
+!base.apk
+
+# Python 构建缓存
+__pycache__/
+*.pyc
+
+# 系统/编辑器
+.DS_Store
+*.swp
+.idea/
+.vscode/

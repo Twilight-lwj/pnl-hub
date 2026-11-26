@@ -1,0 +1,9 @@
+﻿逻辑名称	网页版	Android	Linux
+产品名	组合收益回测中枢	组合收益回测中枢	组合收益回测中枢
+版本号	v1.0.3	v1.0.3 (versionCode 4)	v1.0.3
+包名/进程名	—	com.pnlboard.pnlhub	pnlhub
+签名	—	CN=PnlHub, OU=PnlBoard, O=PnlBoard, C=CN	—
+主页面	组合收益回测中枢_网页版_v1.0.3.html	assets/index.html（取同一份网页版）	index.html（内嵌同一份网页版）
+交付文件名	组合收益回测中枢_网页版_v1.0.3.html	组合收益回测中枢_Android安装包_v1.0.3.apk	组合收益回测中枢_Linux免安装包_v1.0.3.AppImage
+默认端口	—	—	17812
+构建脚本	inline_deps.py / make_clean_page.py	源码/android/build_apk.py	源码/linux/build_appimage.sh

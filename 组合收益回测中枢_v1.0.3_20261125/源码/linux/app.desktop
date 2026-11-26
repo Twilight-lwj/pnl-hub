@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=组合收益回测中枢
+Name[zh_CN]=组合收益回测中枢
+GenericName=Portfolio Backtest Hub
+Comment=组合收益回测中枢：总览、仓位、明细、自选与坚果云备份
+Comment[zh_CN]=组合收益回测中枢：总览、仓位、明细、自选与坚果云备份
+Exec=pnlhub
+Icon=pnlhub
+Terminal=false
+Categories=Office;Finance;
+Keywords=stock;portfolio;backtest;dividend;组合收益;回测;中枢;
+StartupWMClass=pnlhub
