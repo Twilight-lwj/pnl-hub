@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* 组合收益回测中枢 v1.0.5 算法自检：从 HTML 抽函数进 vm，验证核心口径与页面结构。 */
+/* 组合收益回测中枢 v1.0.6 算法自检：从 HTML 抽函数进 vm，验证核心口径与页面结构。 */
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
@@ -12,7 +12,7 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ✓ ' + msg); } else
 
 // ---- 1. 页面结构 ----
 console.log('\n[1] 页面结构');
-ok(html.includes('v1.0.5') || html.includes('组合收益回测中枢'), '版本/产品名称存在');
+ok(html.includes('v1.0.6') || html.includes('组合收益回测中枢'), '版本/产品名称存在');
 ok(!html.includes('data-page-node-id'), '无预览器回写属性');
 ok(!html.includes('cdn.bootcdn.net'), 'CDN 已内联（无外链依赖）');
 ok(html.includes('const EMBED = {"dates":[],"ohlc":[],"cost":[],"holdings":[]'), 'EMBED 为无数据空态');
@@ -78,8 +78,8 @@ if (bs) {
 // ---- 4. 交付物存在性（发行版不入库，未构建时跳过而非判失败）----
 console.log('\n[4] 交付物');
 for (const f of [
-  '发行版/组合收益回测中枢-发行版1.0.5.apk',
-  '发行版/组合收益回测中枢-发行版1.0.5.AppImage',
+  '发行版/组合收益回测中枢-发行版1.0.6.apk',
+  '发行版/组合收益回测中枢-发行版1.0.6.AppImage',
 ]) {
   if (fs.existsSync(path.join(V, f))) ok(true, f + ' 存在');
   else console.log('  - ' + f + ' 未构建，跳过');

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-组合收益回测中枢 1.0.5 — Linux 桌面版启动器
+组合收益回测中枢 1.0.6 — Linux 桌面版启动器
 
 把 APK 里的单页应用（assets/index.html）本地化为 Linux 原生体验：
   * 内置 HTTP 服务，固定端口托管页面（origin 稳定 → localStorage 数据不丢）
@@ -34,7 +34,7 @@ from urllib.request import Request, build_opener, urlopen, ProxyHandler
 from urllib.error import HTTPError, URLError
 
 APP_NAME = "pnlhub"
-VERSION = "1.0.5"
+VERSION = "1.0.6"
 DEFAULT_PORT = 17812
 DAV_ROOT = "https://dav.jianguoyun.com/dav/"
 UA = "pnlhub/%s (Linux)" % VERSION

@@ -17,7 +17,7 @@ if len(sys.argv) < 4:
 page = pathlib.Path(sys.argv[1])
 icon = pathlib.Path(sys.argv[2])
 out = pathlib.Path(sys.argv[3])
-ver = sys.argv[4] if len(sys.argv) > 4 else "1.0.5"
+ver = sys.argv[4] if len(sys.argv) > 4 else "1.0.6"
 
 html_b64 = base64.b64encode(page.read_bytes()).decode("ascii")
 icon_b64 = base64.b64encode(icon.read_bytes()).decode("ascii")

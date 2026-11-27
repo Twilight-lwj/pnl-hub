@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1e2a3a">
 <title>组合收益回测中枢</title>
-<!-- build v1.0.5 -->
+<!-- build v1.0.6 -->
 <script>
 /* 首帧定色：状态栏与顶栏（组合收益卡片）同色，避免先黑后闪。
    桥签名 setSystemBars(String color, boolean light)：color=#RRGGBB；
@@ -337,8 +337,8 @@ document.head.appendChild(sc);})();</script>
       </div>
       <div class="card metric">
         <div class="m-label">今日盈亏</div>
-        <div class="m-val" id="dayPnl">—</div>
-        <div class="m-sub" id="dayPct">—</div>
+        <div class="m-val" id="dayPnl">0.00</div>
+        <div class="m-sub" id="dayPct">0.00%</div>
       </div>
     </div>
     <div class="metric-grid sub">
@@ -702,7 +702,7 @@ function buildSeries(trades, klines) {
 
   return { dates: series.map(r => r[0]), ohlc: series.map(r => [r[1], r[2], r[3], r[4]]),
            cost: costLine, holdings,
-           stats: { mv: last[2], dayPnl: +(last[2] - prev[2]).toFixed(2), cost: costLine[costLine.length - 1],
+           stats: { mv: last[2], dayPnl: +holdings.reduce((t, h) => t + (h.price - h.prev) * h.qty, 0).toFixed(2), cost: costLine[costLine.length - 1],
                     realized: +realized.toFixed(2), dividend: +dividend.toFixed(2) } };
 }
 
@@ -1021,17 +1021,13 @@ function renderCards(data, extra) {
   $('mvSub').innerHTML = `<span class="neutral">${data.holdings.length} 只持仓</span>`;
   $('mvPnl').innerHTML = `<span class="${clsOf(pnl)}">${signed(pnl)}</span>`;
   $('mvPnlRate').innerHTML = `<span class="${clsOf(pnl)}">${(pnl / Math.max(1, s.cost) * 100).toFixed(2)}%</span>`;
-  // 今日盈亏：优先用 stats.dayPnl；同花顺快照无该字段时由行情 prev 现算
-  let day = s.dayPnl;
-  if (day == null) {
-    day = (data.holdings || []).reduce((t, h) => t + (h.price - h.prev) * h.qty, 0);
-  }
+  // 今日盈亏：所有页面统一按 Σ(现价−昨收)×股数（纯价格变动，不含当日买卖资金）
+  const day = (data.holdings || []).reduce((t, h) => t + ((+h.price || 0) - (+h.prev || 0)) * (+h.qty || 0), 0);
   $('dayPnl').innerHTML = `<span class="${clsOf(day)}">${signed(day)}</span>`;
-  // 今日盈亏百分比 = 今日盈亏 / 昨日持仓市值（昨收×股数）
+  // 今日盈亏百分比：分子分母同源，分母 = Σ 昨收×股数；无分母时显示 0.00%
   const prevMv = (data.holdings || []).reduce((t, h) => t + (+h.qty || 0) * (+h.prev || 0), 0);
-  const dayPct = prevMv > 0 ? day / prevMv * 100 : null;
-  $('dayPct').innerHTML = dayPct == null ? '<span class="neutral">—</span>'
-    : `<span class="${clsOf(dayPct)}">${dayPct > 0 ? '+' : ''}${dayPct.toFixed(2)}%</span>`;
+  const dayPct = prevMv > 0 ? day / prevMv * 100 : 0;
+  $('dayPct').innerHTML = `<span class="${clsOf(dayPct)}">${dayPct > 0 ? '+' : ''}${dayPct.toFixed(2)}%</span>`;
 
   const cashSum = a.cashSum, rz = a.rz, dv = (extra && extra.dividend) || 0;
   $('cashYield').innerHTML = `<span class="${clsOf(cashSum)}">${signed(cashSum)}</span>`;
@@ -1191,7 +1187,7 @@ function showEmptyStrategy(key) {
   $('mvValue').innerHTML = '0.00<small>元</small>';
   $('mvSub').textContent = '等待录入';
   $('mvPnl').textContent = '0.00'; $('mvPnlRate').textContent = '0.00%';
-  $('dayPnl').textContent = '0.00'; $('dayPct').textContent = '—';
+  $('dayPnl').textContent = '0.00'; $('dayPct').textContent = '0.00%';
   $('cashYield').innerHTML = `<span class="${clsOf(a0.cashSum)}">${signed(a0.cashSum)}</span>`;
   $('realizedYield').textContent = '0.00';
   $('dividendYield').textContent = '0.00';
