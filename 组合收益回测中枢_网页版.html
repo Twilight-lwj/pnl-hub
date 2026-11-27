@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1e2a3a">
 <title>组合收益回测中枢</title>
-<!-- build v1.0.3 -->
+<!-- build v1.0.4 -->
 <script>
 /* 首帧定色：状态栏与顶栏（组合收益卡片）同色，避免先黑后闪。
    桥签名 setSystemBars(String color, boolean light)：color=#RRGGBB；
@@ -93,14 +93,7 @@ document.head.appendChild(sc);})();</script>
   .tab.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
   .tab.import { background: #fff7e6; border-color: #f3c97a; color: #a86800; font-weight: 600; }
   .tab .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
-  /* 页签净值：非激活用涨跌色（红涨绿跌），激活态用浅色保证蓝底可读 */
-  .tab .tab-nav { margin-left: 3px; font-size: 0.6rem; font-weight: 700; font-variant-numeric: tabular-nums; color: #8a93a0; letter-spacing: -.2px; }
-  .tab .tab-nav.pos { color: var(--red); }
-  .tab .tab-nav.neg { color: var(--green); }
-  .tab.active .tab-nav, .tab.active .tab-nav.pos, .tab.active .tab-nav.neg { color: rgba(255,255,255,.92); }
-  body.dark .tab .tab-nav { color: #6f7c8c; }
-  body.dark .tab.active .tab-nav, body.dark .tab.active .tab-nav.pos, body.dark .tab.active .tab-nav.neg { color: rgba(255,255,255,.92); }
-  /* 手机上 4 个策略按钮排成 2×2，避免被裁切 */
+  /* 页签在窄屏排成 2×2，避免被裁切 */
   @media (max-width: 560px) {
     .strategy-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow: visible; }
     .strategy-bar .tab { padding: 8px 6px; font-size: 0.69rem; }
@@ -211,6 +204,22 @@ document.head.appendChild(sc);})();</script>
   .seg .mini-btn { flex: 1; min-height: 36px; font-size: 0.74rem; }
   .seg .mini-btn.on { background: #eef4ff; border-color: #b9d1fb; color: #2f6fd0; font-weight: 700; }
   .set-status { font-size: 0.63rem; color: var(--ink3); line-height: 1.55; margin-top: 8px; word-break: break-all; }
+  .page-row { border: 1px solid var(--line); border-radius: 9px; padding: 8px; margin-bottom: 7px; }
+  .page-row-top { display: flex; align-items: center; gap: 6px; }
+  .page-row-top input { flex: 1; min-width: 0; padding: 7px 8px; font-size: 0.76rem; border: 1px solid #e2e6ec; border-radius: 7px; background: #fbfcfd; color: var(--ink); outline: none; }
+  .page-row-top input:focus { border-color: var(--blue); background: #fff; }
+  .page-tag { flex: 0 0 auto; font-size: 0.58rem; color: var(--ink3); border: 1px solid var(--line); border-radius: 6px; padding: 2px 5px; white-space: nowrap; }
+  .page-row-actions { display: flex; gap: 6px; margin-top: 6px; }
+  .page-row-actions .mini-btn { flex: 1; padding: 0 4px; min-height: 32px; font-size: 0.66rem; }
+  .page-row-actions .mini-btn.danger { background: #fdecea; border-color: #f5c6c0; color: #c0392b; }
+  .page-add-row { display: flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 9px; padding: 8px; margin-top: 10px; }
+  .page-add-row input { flex: 1; min-width: 0; padding: 7px 9px; font-size: 0.76rem; border: 1px solid #e2e6ec; border-radius: 7px; background: #fbfcfd; color: var(--ink); outline: none; min-height: 40px; }
+  .page-add-row input:focus { border-color: var(--blue); background: #fff; }
+  .stock-pick { display: flex; align-items: center; gap: 8px; padding: 8px 9px; border-bottom: 1px solid var(--line); font-size: 0.74rem; cursor: pointer; }
+  .stock-pick:last-child { border-bottom: 0; }
+  .stock-pick input[type=checkbox] { flex: 0 0 auto; width: 16px; height: 16px; accent-color: var(--blue); }
+  .stock-pick .sp-name { flex: 1; min-width: 0; color: var(--ink); }
+  .stock-pick .sp-meta { font-size: 0.62rem; color: var(--ink3); white-space: nowrap; }
   .set-status.ok { color: #2f8f5b; }
   .set-status.err { color: #c0392b; }
 
@@ -251,6 +260,11 @@ document.head.appendChild(sc);})();</script>
   body.dark .cand .cd:active { background: #1d2c46; }
   body.dark .set-status.ok { color: #4ec98a; }
   body.dark .set-status.err { color: #f08a80; }
+  body.dark .page-row-top input { background: #0f1620; border-color: #2a3542; color: var(--ink); }
+  body.dark .page-row-top input:focus { background: #111a25; border-color: var(--blue); }
+  body.dark .page-add-row input { background: #0f1620; border-color: #2a3542; color: var(--ink); }
+  body.dark .page-add-row input:focus { background: #111a25; border-color: var(--blue); }
+  body.dark .page-row-actions .mini-btn.danger { background: #3a1f1d; border-color: #5a2e2a; color: #f08a80; }
   body.dark .empty { color: var(--ink3); }
 
   /* 平板竖屏（OPPO Pad mini 竖屏 ≈ 600~840px） */
@@ -326,12 +340,8 @@ document.head.appendChild(sc);})();</script>
     </div>
 
     <!-- 策略切换 -->
-    <div class="strategy-bar" id="strategyBar">
-      <div class="tab active" data-key="ths"><span class="dot"></span>同花顺投资账本<span class="tab-nav" id="tabNav_ths">—</span></div>
-      <div class="tab" data-key="schloss"><span class="dot"></span>施洛斯A股策略<span class="tab-nav" id="tabNav_schloss">—</span></div>
-      <div class="tab" data-key="bigfish"><span class="dot"></span>大肥鱼A股策略<span class="tab-nav" id="tabNav_bigfish">—</span></div>
-      <label class="tab import" id="tabImport">📥 导入同花顺账本流水<input type="file" id="importFlow" accept=".xlsx,.xls,.csv" style="display:none"></label>
-    </div>
+    <!-- 策略切换：页签由设置页的「自定义页面」配置动态生成 -->
+    <div class="strategy-bar" id="strategyBar"></div>
 
     <!-- 持仓走势 K 线 -->
     <div class="chart-card">
@@ -424,6 +434,16 @@ document.head.appendChild(sc);})();</script>
       <div class="field"><label>数量（股）</label><input type="number" inputmode="numeric" id="tQty" placeholder="100"></div>
       <div class="field"><label>成交价（元）</label><input type="number" step="0.001" id="tPrice" placeholder="29.50"></div>
     </div>
+    <div class="set-sec" style="border-top:1px solid var(--line);padding-top:10px;margin-top:10px">
+      <div class="set-title">从其他页面导入股票</div>
+      <div class="hint">勾选来源页面的股票，连同其买卖记录一起复制到本页；从同花顺账本导入时按当前持仓成本生成一笔今日买入记录。重复导入不会重复添加。</div>
+      <div class="field"><label>来源页面</label><select id="tradeFromPage"></select></div>
+      <div class="cand" id="tradeStockList" style="display:none;max-height:180px"></div>
+      <div class="sheet-actions" style="margin-top:8px">
+        <button class="btn plain" id="tradeListStocks">列出股票</button>
+        <button class="btn primary" id="tradeImportStocks">导入选中</button>
+      </div>
+    </div>
     <div class="sheet-actions">
       <button class="btn danger" id="tradeClear">清空</button>
       <button class="btn plain" id="tradeCancel">取消</button>
@@ -459,12 +479,34 @@ document.head.appendChild(sc);})();</script>
     </div>
 
     <div class="set-sec">
+      <div class="set-title">账本流水导入 <span class="c-badge">XLSX / CSV</span></div>
+      <div class="sheet-actions">
+        <label class="btn primary" style="display:flex;align-items:center;justify-content:center">📥 导入同花顺账本流水<input type="file" id="importFlow" accept=".xlsx,.xls,.csv" style="display:none"></label>
+      </div>
+      <div class="set-status" id="flowStatus">默认导入到「同花顺投资账本」页面，并同步更新入金合计与持仓明细。</div>
+    </div>
+
+    <div class="set-sec">
+      <div class="set-title">自定义页面</div>
+      <div class="hint">管理顶部切换条上的页面：内置页可改名、隐藏后恢复；自定义页可新增、改名、隐藏或删除，删除会同时清空该页买卖记录。</div>
+      <div id="pageManageList"></div>
+      <div class="page-add-row">
+        <input type="text" id="newPageName" maxlength="24" placeholder="新页面名称，如：红利低波策略">
+        <button class="btn primary" id="pageAdd" style="flex:0 0 82px;min-height:40px">添加</button>
+      </div>
+      <div class="sheet-actions">
+        <button class="btn plain" id="pageReset">恢复内置页默认</button>
+      </div>
+      <div class="set-status" id="pageStatus">页面配置随「导出数据 / 导入数据」一起保存，换机可恢复。</div>
+    </div>
+
+    <div class="set-sec">
       <div class="set-title">数据</div>
       <div class="sheet-actions">
         <button class="btn plain" id="btnExport">导出数据</button>
         <label class="btn primary" style="display:flex;align-items:center;justify-content:center">导入数据<input type="file" id="fileImport" accept=".json,application/json" style="display:none"></label>
       </div>
-      <div class="set-status" id="ioStatus">导出文件包含两个策略页的买卖记录、货币收益、外观设置与坚果云邮箱/许可密码，换机可直接恢复；导入只接受本页导出的文件。</div>
+      <div class="set-status" id="ioStatus">导出文件包含各页面的买卖记录、页面配置、货币收益、外观设置与坚果云邮箱/许可密码，换机可直接恢复；导入只接受本页导出的文件。</div>
     </div>
 
     <div class="sheet-actions" style="margin-top:16px">
@@ -502,7 +544,7 @@ function toast(msg, ms = 2200) {
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
 }
-const LS = { cash: 'pnl_cash_yield_v4', strategies: 'pnl_strategies_v1' };
+const LS = { cash: 'pnl_cash_yield_v4', strategies: 'pnl_strategies_v1', pages: 'pnl_pages_v1' };
 const loadLS = (k, dflt) => { try { return JSON.parse(localStorage.getItem(k)) ?? dflt; } catch (e) { return dflt; } };
 const saveLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
@@ -771,23 +813,67 @@ function parseFlowFile(wb) {
 /* ============ 渲染 ============ */
 const state = { key: 'ths', data: null, chart: null,
   extra: { realized: 0, dividend: 0, deposits: +(EMBED.stats && EMBED.stats.deposits) || 0 },
-  deposits: +(EMBED.stats && EMBED.stats.deposits) || 0, win: 30, view: 'nav',
-  navByKey: { ths: NaN, schloss: NaN, bigfish: NaN } };
+  deposits: +(EMBED.stats && EMBED.stats.deposits) || 0, win: 30, view: 'nav' };
 
-// 把某页当前单位净值记入表并刷新三个页签的净值显示
-function setTabNav(key, nav) {
-  state.navByKey[key] = nav;
-  refreshTabNav();
+/* ============ 页面管理：仅同花顺账本为内置，其余均为自定义页 ============ */
+const DEFAULT_PAGES = [
+  { key: 'ths', name: '同花顺投资账本', builtin: true, visible: true },
+  { key: 'schloss', name: '施洛斯A股策略', builtin: false, visible: true },
+  { key: 'bigfish', name: '大肥鱼A股策略', builtin: false, visible: true },
+  { key: 'c_holddiva', name: '持股持息A策略', builtin: false, visible: true }
+];
+const BUILTIN_PAGES = DEFAULT_PAGES.filter(p => p.builtin);
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function refreshTabNav() {
-  ['ths', 'schloss', 'bigfish'].forEach(k => {
-    const el = $('tabNav_' + k);
-    if (!el) return;
-    const v = state.navByKey[k];
-    const ok = typeof v === 'number' && isFinite(v);
-    el.textContent = ok ? Number(v).toFixed(4) : '—';
-    el.className = 'tab-nav' + (ok ? (v >= 1 ? ' pos' : ' neg') : '');
+function normalizePages(list) {
+  const src = Array.isArray(list) ? list : [];
+  const out = [], seen = new Set();
+  DEFAULT_PAGES.forEach(def => {
+    const f = src.find(p => p && p.key === def.key);
+    // 内置页始终保留；非内置默认页：首次使用自动建，已有配置时只在被删的情况下保留删除状态
+    if (!def.builtin && list && !f && def.key !== 'c_holddiva') return;
+    const nm = f && String(f.name || '').trim();
+    out.push({ key: def.key, name: (nm || def.name).slice(0, 24),
+               builtin: !!def.builtin, visible: !f || f.visible !== false });
+    seen.add(def.key);
   });
+  src.forEach(p => {
+    if (!p || typeof p.key !== 'string' || !/^c_[a-z0-9_]+$/.test(p.key) || seen.has(p.key)) return;
+    const nm = String(p.name || '').trim().slice(0, 24);
+    if (!nm) return;
+    out.push({ key: p.key, name: nm, builtin: false, visible: p.visible !== false });
+    seen.add(p.key);
+  });
+  return out;
+}
+function loadPages() { return normalizePages(loadLS(LS.pages, null)); }
+function savePages(list) { saveLS(LS.pages, normalizePages(list)); }
+function pageName(key) {
+  const p = loadPages().find(x => x.key === key);
+  if (p) return p.name;
+  const d = DEFAULT_PAGES.find(x => x.key === key);
+  return d ? d.name : '自定义策略';
+}
+function visiblePages() { return loadPages().filter(p => p.visible); }
+function renderTabs() {
+  $('strategyBar').innerHTML = visiblePages().map(p =>
+    `<div class="tab${p.key === state.key ? ' active' : ''}" data-key="${p.key}" title="${escapeHtml(p.name)}"><span class="dot"></span>${escapeHtml(p.name)}</div>`
+  ).join('');
+}
+function activatePage(key) {
+  state.key = key;
+  renderTabs();
+  if (key === 'ths') {
+    const p = thsLoad({ snapMeta: { badge: '同花顺账本',
+      sub: '本地缓存的股票明细 · 可点「刷新行情」更新现价',
+      tableSub: '数量与成本来自本地缓存，现价来自上次行情' } });
+    state.extra = p.extra;
+    showData(p.data, p.extra, p.meta);
+  } else {
+    loadStrategy(key);
+  }
 }
 
 function renderChart(data) {
@@ -953,7 +1039,6 @@ function showData(data, extra, meta) {
   const lastCost = data.cost[li] || 0, lastMv = data.ohlc[li] ? data.ohlc[li][1] : 0;
   const navNow = lastCost > 0 ? lastMv / lastCost : 1;
   setNav(navNow);
-  setTabNav(state.key, navNow);   // 页签后方显示该页单位净值
   $('navAdd').style.display = state.key === 'ths' ? 'none' : '';
   $('srcBadge').textContent = meta.badge;
   $('chartSub').textContent = meta.sub;
@@ -981,13 +1066,12 @@ function strategyTrades(key) {
 
 function showEmptyStrategy(key) {
   state.key = key;
-  const label = key === 'schloss' ? '施洛斯A股策略' : '大肥鱼A股策略';
+  const label = pageName(key);
   $('kchart').style.display = 'none';
-  $('statStrip').innerHTML = '<span>暂无买卖记录：点上方「导入同花顺账本流水」批量导入，或点净值右侧「＋」逐笔手动添加</span>';
+  $('statStrip').innerHTML = '<span>暂无买卖记录：到设置页「账本流水导入」批量导入，或点净值右侧「＋」逐笔手动添加</span>';
   $('srcBadge').textContent = label;
   $('navAdd').style.display = '';
   setNav(NaN);
-  setTabNav(key, NaN);
   $('chartSub').textContent = '导入/录入买卖记录后，自动拉取腾讯行情计算持仓走势';
   $('tableSub').textContent = '数量与成本来自导入或手动录入';
   renderTable([], 0);
@@ -1007,7 +1091,7 @@ function showEmptyStrategy(key) {
 
 async function loadStrategy(key) {
   const trades = strategyTrades(key);
-  const label = key === 'schloss' ? '施洛斯A股策略' : '大肥鱼A股策略';
+  const label = pageName(key);
   if (!trades.length) { showEmptyStrategy(key); return; }
   toast('正在拉取行情…', 1500);
   try {
@@ -1044,26 +1128,16 @@ async function loadStrategy(key) {
 $('strategyBar').addEventListener('click', e => {
   const tab = e.target.closest('.tab[data-key]');
   if (!tab) return;
-  const key = tab.dataset.key;
-  [...$('strategyBar').querySelectorAll('.tab[data-key]')].forEach(t => t.classList.toggle('active', t === tab));
-  state.key = key;
-  if (key === 'ths') {
-    // 优先从本地快照恢复（含导入的股票明细），避免切走再切回数据消失
-    const p = thsLoad({ snapMeta: { badge: '同花顺账本', sub: '本地缓存的股票明细 · 可点「刷新行情」更新现价',
-                                    tableSub: '数量与成本来自本地缓存，现价来自上次行情' } });
-    state.extra = p.extra;
-    showData(p.data, p.extra, p.meta);
-    refreshTabNav();
-  } else {
-    loadStrategy(key);
-  }
+  if (tab.dataset.key === state.key) return;
+  // 优先从本地快照恢复（含导入的股票明细），避免切走再切回数据消失
+  activatePage(tab.dataset.key);
 });
 
 $('btnRefresh').addEventListener('click', async () => {
   if (state.key !== 'ths') { loadStrategy(state.key); return; }
   const cur = state.data;
   if (!cur || !cur.holdings || !cur.holdings.length) {
-    toast('请先「导入同花顺账本流水」再刷新行情', 2800); return;
+    toast('请先到设置页「账本流水导入」再刷新行情', 2800); return;
   }
   const enterKey = state.key;
   try {
@@ -1121,11 +1195,11 @@ async function importFlowFile(file, target) {
       all[target] = ana.trades; saveLS(LS.strategies, all);
       showData(data, { realized: data.stats.realized, dividend: data.stats.dividend,
                        deposits: state.deposits, simple: true },
-        { badge: target === 'schloss' ? '施洛斯A股策略' : '大肥鱼A股策略',
+        { badge: pageName(target),
           sub: '数据源：' + file.name + '（' + ana.trades.length + ' 笔成交）· 行情来自腾讯',
           tableSub: '数量与成本来自导入流水，现价来自行情' });
     }
-    toast('已导入到' + (isThs ? '同花顺投资账本' : (target === 'schloss' ? '施洛斯A股策略' : '大肥鱼A股策略')) +
+    toast('已导入到' + pageName(target) +
           '：' + ana.trades.length + ' 笔成交（入金 ' + fmt(ana.deposits) + ' 元）', 3000);
   } catch (err) {
     toast('行情获取失败：' + err.message + '（可用顶栏「刷新行情」重试）', 3200);
@@ -1134,8 +1208,15 @@ async function importFlowFile(file, target) {
 
 $('importFlow').addEventListener('change', async e => {
   const f = e.target.files[0]; if (!f) return;
-  const target = state.key;
-  try { await importFlowFile(f, target); } catch (err) { toast('导入失败：' + err.message, 3200); }
+  const target = 'ths';
+  setFlowStatus('正在导入到「同花顺投资账本」…');
+  try {
+    await importFlowFile(f, target);
+    setFlowStatus('已导入到「' + pageName(target) + '」：' + f.name, 'ok');
+  } catch (err) {
+    setFlowStatus('导入失败：' + err.message, 'err');
+    toast('导入失败：' + err.message, 3200);
+  }
   e.target.value = '';
 });
 /* 策略页的「＋」：逐笔手动添加（净值块右侧） */
@@ -1194,13 +1275,94 @@ cashItem.addEventListener('contextmenu', e => { e.preventDefault(); openCashModa
 
 /* 手动添加买卖记录 */
 let tradeTarget = 'schloss';
+function pageHasStocks(key) {
+  if (key === 'ths') {
+    const snap = loadThs();
+    return !!(snap && snap.data && snap.data.holdings && snap.data.holdings.length);
+  }
+  return (strategyTrades(key) || []).length > 0;
+}
+function stocksOfPage(key) {
+  if (key === 'ths') {
+    const snap = loadThs();
+    const hs = (snap && snap.data && snap.data.holdings) || [];
+    const map = new Map();
+    const today = new Date().toISOString().slice(0, 10);
+    hs.forEach(h => {
+      if (!/^\d{6}$/.test(String(h.code || ''))) return;
+      const qty = +h.qty || 0, price = +h.cost || 0;
+      if (qty <= 0) return;
+      map.set(h.code, { code: h.code, name: h.name || h.code, qty: qty, price: price,
+        trades: [{ date: today, code: h.code, name: h.name || h.code, side: 'buy', qty: qty, price: price }] });
+    });
+    return [...map.values()];
+  }
+  const map = new Map();
+  (strategyTrades(key) || []).forEach(t => {
+    if (!/^\d{6}$/.test(String(t.code || ''))) return;
+    if (!map.has(t.code)) map.set(t.code, { code: t.code, name: t.name || t.code, qty: 0, price: 0, trades: [] });
+    const g = map.get(t.code);
+    g.trades.push(Object.assign({}, t));
+    if (t.name && t.name !== t.code) g.name = t.name;
+  });
+  return [...map.values()].map(g => {
+    const net = g.trades.reduce((n, t) => n + (t.side === 'buy' ? (+t.qty || 0) : t.side === 'sell' ? -(+t.qty || 0) : 0), 0);
+    g.qty = Math.max(0, net);
+    g.price = +g.trades[g.trades.length - 1].price || 0;
+    return g;
+  });
+}
 function openTradeModal(key) {
   tradeTarget = key;
-  $('tradeTitle').textContent = (key === 'schloss' ? '施洛斯A股策略' : '大肥鱼A股策略') + ' · 手动添加';
+  $('tradeTitle').textContent = pageName(key) + ' · 手动添加';
   $('tradeHint').textContent = '已有 ' + strategyTrades(key).length + ' 条买卖记录；保存后自动拉取行情重算走势。';
   $('tDate').value = new Date().toISOString().slice(0, 10);
+  const src = loadPages().filter(p => p.key !== key && pageHasStocks(p.key));
+  $('tradeFromPage').innerHTML = src.map(p => `<option value="${p.key}">${escapeHtml(p.name)}</option>`).join('');
+  $('tradeStockList').style.display = 'none';
+  $('tradeStockList').innerHTML = '';
   $('tradeMask').classList.add('show');
 }
+function listImportStocks() {
+  const key = $('tradeFromPage').value;
+  const box = $('tradeStockList');
+  if (!key) {
+    box.innerHTML = '<div style="padding:10px;font-size:.68rem;color:var(--ink3)">暂无可导入的其他页面</div>';
+    box.style.display = ''; return;
+  }
+  const stocks = stocksOfPage(key);
+  if (!stocks.length) {
+    box.innerHTML = '<div style="padding:10px;font-size:.68rem;color:var(--ink3)">该页暂无可导入的股票</div>';
+    box.style.display = ''; return;
+  }
+  box.innerHTML = stocks.map(s =>
+    `<label class="stock-pick"><input type="checkbox" data-code="${s.code}" checked><span class="sp-name">${escapeHtml(s.name)} <span class="sp-meta">${s.code}</span></span><span class="sp-meta">${s.qty > 0 ? s.qty + ' 股' : ''}</span></label>`
+  ).join('');
+  box.style.display = '';
+  toast('已列出 ' + stocks.length + ' 只股票，勾选后点「导入选中」');
+}
+$('tradeListStocks').addEventListener('click', listImportStocks);
+$('tradeImportStocks').addEventListener('click', async () => {
+  const srcKey = $('tradeFromPage').value;
+  const picked = [...$('tradeStockList').querySelectorAll('input[data-code]:checked')].map(x => x.dataset.code);
+  if (!picked.length) { toast('请先列出并勾选要导入的股票'); return; }
+  const stocks = stocksOfPage(srcKey).filter(s => picked.indexOf(s.code) >= 0);
+  const all = loadLS(LS.strategies, {});
+  const arr = all[tradeTarget] || [];
+  const seen = new Set(arr.map(t => [t.date, t.code, t.side, t.qty, t.price].join('|')));
+  let added = 0;
+  stocks.forEach(s => s.trades.forEach(t => {
+    const sig = [t.date, t.code, t.side, t.qty, t.price].join('|');
+    if (seen.has(sig)) return;
+    seen.add(sig); arr.push(Object.assign({}, t)); added++;
+  }));
+  all[tradeTarget] = arr; saveLS(LS.strategies, all);
+  $('tradeMask').classList.remove('show');
+  state.key = tradeTarget;
+  renderTabs();
+  await loadStrategy(tradeTarget);
+  toast(added ? '已从「' + pageName(srcKey) + '」导入 ' + added + ' 条记录（' + stocks.length + ' 只股票）' : '所选股票已在本页，未重复导入');
+});
 $('tradeCancel').addEventListener('click', () => $('tradeMask').classList.remove('show'));
 $('tradeMask').addEventListener('click', e => { if (e.target === $('tradeMask')) $('tradeMask').classList.remove('show'); });
 $('tradeSave').addEventListener('click', async () => {
@@ -1216,7 +1378,7 @@ $('tradeSave').addEventListener('click', async () => {
   $('tradeMask').classList.remove('show');
   $('tCode').value = ''; $('tName').value = ''; $('tQty').value = ''; $('tPrice').value = '';
   state.key = tradeTarget;
-  [...$('strategyBar').querySelectorAll('.tab[data-key]')].forEach(t => t.classList.toggle('active', t.dataset.key === tradeTarget));
+  renderTabs();
   await loadStrategy(tradeTarget);
 });
 $('tradeClear').addEventListener('click', async () => {
@@ -1224,7 +1386,7 @@ $('tradeClear').addEventListener('click', async () => {
   all[tradeTarget] = []; saveLS(LS.strategies, all);
   $('tradeMask').classList.remove('show');
   state.key = tradeTarget;
-  [...$('strategyBar').querySelectorAll('.tab[data-key]')].forEach(t => t.classList.toggle('active', t.dataset.key === tradeTarget));
+  renderTabs();
   showEmptyStrategy(tradeTarget);
   toast('已清空该策略记录');
 });
@@ -1385,6 +1547,7 @@ function applyTheme(t, silent) {
   b.addEventListener('click', () => applyTheme(b.dataset.theme)));
 
 function openSettings() {
+  renderPageSettings();
   const c = nsCfg();
   $('nsUser').value = c.user || '';
   $('nsPass').value = c.pass || '';
@@ -1394,6 +1557,109 @@ function openSettings() {
 }
 $('setClose').addEventListener('click', () => $('setMask').classList.remove('show'));
 $('setMask').addEventListener('click', e => { if (e.target === $('setMask')) $('setMask').classList.remove('show'); });
+
+/* --- 设置：自定义页面 --- */
+function setPageStatus(msg, cls) {
+  const el = $('pageStatus');
+  el.textContent = msg;
+  el.className = 'set-status' + (cls ? ' ' + cls : '');
+}
+function setFlowStatus(msg, cls) {
+  const el = $('flowStatus');
+  el.textContent = msg;
+  el.className = 'set-status' + (cls ? ' ' + cls : '');
+}
+function renderPageSettings() {
+  $('pageManageList').innerHTML = loadPages().map(p => `
+    <div class="page-row" data-key="${p.key}">
+      <div class="page-row-top">
+        <input type="text" class="page-name" value="${escapeHtml(p.name)}" maxlength="24" aria-label="页面名称">
+        <span class="page-tag">${p.builtin ? '内置' : '自定义'}</span>
+      </div>
+      <div class="page-row-actions">
+        <button type="button" class="mini-btn" data-act="rename">改名</button>
+        <button type="button" class="mini-btn" data-act="toggle">${p.visible ? '隐藏' : '显示'}</button>
+        <button type="button" class="mini-btn danger" data-act="remove">${p.builtin ? '移除' : '删除'}</button>
+      </div>
+    </div>`).join('');
+}
+function afterPageChange(changedKey) {
+  if (!visiblePages().some(p => p.key === state.key)) {
+    const next = visiblePages()[0];
+    if (next) activatePage(next.key);
+  } else {
+    renderTabs();
+  }
+  renderPageSettings();
+}
+$('pageManageList').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const row = btn.closest('.page-row');
+  if (!row) return;
+  let pages = loadPages();
+  const p = pages.find(x => x.key === row.dataset.key);
+  if (!p) return;
+  const act = btn.dataset.act;
+  if (act === 'rename') {
+    const input = row.querySelector('.page-name');
+    const nm = input.value.trim().slice(0, 24);
+    if (!nm) { setPageStatus('页面名称不能为空', 'err'); input.focus(); return; }
+    if (pages.some(x => x.key !== p.key && x.name === nm)) { setPageStatus('已有同名页面，请换一个名称', 'err'); return; }
+    p.name = nm; savePages(pages);
+    afterPageChange(p.key);
+    setPageStatus('已改名为「' + nm + '」', 'ok');
+    return;
+  }
+  if (act === 'toggle') {
+    if (p.visible && visiblePages().length === 1) { setPageStatus('至少保留一个可见页面', 'err'); return; }
+    p.visible = !p.visible; savePages(pages);
+    afterPageChange(p.key);
+    setPageStatus('已' + (p.visible ? '显示' : '隐藏') + '页面「' + p.name + '」', 'ok');
+    return;
+  }
+  if (act === 'remove') {
+    if (p.builtin) {
+      if (p.visible && visiblePages().length === 1) { setPageStatus('至少保留一个可见页面', 'err'); return; }
+      p.visible = false; savePages(pages);
+      afterPageChange(p.key);
+      setPageStatus('已从切换条移除内置页「' + p.name + '」，数据保留，可随时恢复显示', 'ok');
+      return;
+    }
+    if (!window.confirm('删除自定义页面「' + p.name + '」？该页买卖记录也会一并清空，且不可恢复。')) return;
+    const all = loadLS(LS.strategies, {});
+    delete all[p.key]; saveLS(LS.strategies, all);
+    pages = pages.filter(x => x.key !== p.key); savePages(pages);
+    afterPageChange(p.key);
+    setPageStatus('已删除页面「' + p.name + '」', 'ok');
+    toast('已删除页面：' + p.name);
+  }
+});
+$('pageAdd').addEventListener('click', () => {
+  const nm = $('newPageName').value.trim().slice(0, 24);
+  if (!nm) { setPageStatus('请先填写新页面名称', 'err'); return; }
+  const pages = loadPages();
+  if (pages.some(p => p.name === nm)) { setPageStatus('已有同名页面，请换一个名称', 'err'); return; }
+  const key = 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+  pages.push({ key: key, name: nm, builtin: false, visible: true });
+  savePages(pages);
+  $('newPageName').value = '';
+  activatePage(key);
+  renderPageSettings();
+  setPageStatus('已添加页面「' + nm + '」，可在本页导入或手动录入流水', 'ok');
+  toast('已添加页面：' + nm);
+});
+$('pageReset').addEventListener('click', () => {
+  const pages = loadPages();
+  pages.forEach(p => {
+    if (!p.builtin) return;
+    const d = BUILTIN_PAGES.find(x => x.key === p.key);
+    p.name = d.name; p.visible = true;
+  });
+  savePages(pages);
+  afterPageChange('');
+  setPageStatus('已恢复内置页面的默认名称与显示', 'ok');
+});
 
 let setPress = null;
 const brandEl = $('brand');
@@ -1525,6 +1791,7 @@ function buildExport() {
     data: {
       cash: loadLS(LS.cash, { repo: 0, wealth: 0, money: 0 }),
       strategies: loadLS(LS.strategies, {}),
+      pages: loadPages(),
       ths: loadThs(),
       theme: loadLS(LS.theme, 'light'),
       deposits: state.deposits
@@ -1552,6 +1819,7 @@ function applyImport(obj, fromCloud) {
   const d = obj.data || {};
   if (d.cash) saveLS(LS.cash, d.cash);
   if (d.strategies) saveLS(LS.strategies, d.strategies);
+  if (d.pages) { savePages(d.pages); renderTabs(); renderPageSettings(); }
   if (obj.nutstore) {
     saveLS(LS.nutstore, Object.assign(nsCfg(), {
       user: obj.nutstore.user || '', pass: obj.nutstore.pass || '', path: obj.nutstore.path || 'PnlHub'
@@ -1568,14 +1836,13 @@ function applyImport(obj, fromCloud) {
   $('nsPath').value = nsCfg().path || 'PnlHub';
   // 回到同花顺页重绘（优先用恢复的快照，含股票明细）
   state.key = 'ths';
-  [...$('strategyBar').querySelectorAll('.tab[data-key]')].forEach(t => t.classList.toggle('active', t.dataset.key === 'ths'));
+  renderTabs();
   applyTheme(loadLS(LS.theme, 'light'), true);
   const p = thsLoad({ snapMeta: { badge: '同花顺账本',
       sub: '已从备份恢复的股票明细 · ' + (d.exportedAt ? d.exportedAt.slice(0, 10) : ''),
       tableSub: '数量与成本来自备份快照，现价来自上次行情' } });
   state.extra = p.extra;
   showData(p.data, p.extra, p.meta);
-  refreshTabNav();
   const n = Object.values(loadLS(LS.strategies, {})).reduce((a, b) => a + (b ? b.length : 0), 0);
   const hn = p.data.holdings.length;
   if (!fromCloud) setIoStatus('已恢复：股票明细 ' + hn + ' 只 · 策略买卖 ' + n + ' 条 · 货币收益 ' + signed(assetCalc(p.data.stats, p.extra).cashSum) + ' 元', 'ok');
@@ -1606,11 +1873,12 @@ $('fileImport').addEventListener('change', e => {
     // 货币收益完全手动，默认全 0：不从账本读取逆回购金额，也不自动刷新
     saveLS(LS.cash, { repo: 0, wealth: 0, money: 0 });
   }
+  if (!localStorage.getItem(LS.pages)) savePages(DEFAULT_PAGES);
+  renderTabs();
   // 优先从本地快照恢复同花顺页（含股票明细），否则用内置空数据
   const p = thsLoad();
   state.extra = p.extra;
   showData(p.data, p.extra, p.meta);
-  refreshTabNav();
   window.addEventListener('resize', () => { if (state.chart) state.chart.resize(); });
   window.addEventListener('orientationchange', () => setTimeout(() => state.chart && state.chart.resize(), 260));
 })();

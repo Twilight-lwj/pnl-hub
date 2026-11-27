@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""组合收益回测中枢 v1.0.3 · Android APK 增量重打包（模式 B）。
+"""组合收益回测中枢 v1.0.4 · Android APK 增量重打包（模式 B）。
 
 复用同源 WebView 壳（base.apk）：只改 AndroidManifest.xml 的
 package / label / versionName / versionCode，替换 assets/index.html，丢旧签名
@@ -21,8 +21,8 @@ sys.path.insert(0, str(HERE))
 from axml import Axml  # noqa: E402
 
 LABEL = "组合收益回测中枢"
-VERSION_NAME = "1.0.3"
-VERSION_CODE = 4
+VERSION_NAME = "1.0.4"
+VERSION_CODE = 5
 
 BASE = pathlib.Path(os.environ.get("BASE", str(HERE / "base.apk")))
 # 页面只有一份（网页版即页面源码本体），内嵌页与它逐字节相同，不再单独存副本

@@ -43,7 +43,7 @@ old3 = """$('btnRefresh').addEventListener('click', async () => {
   try {"""
 new3 = """$('btnRefresh').addEventListener('click', async () => {
   if (state.key !== 'ths') { loadStrategy(state.key); return; }
-  if (!EMBED.holdings.length) { toast('暂无持仓数据，请先「导入同花顺账本流水」'); return; }
+  if (!EMBED.holdings.length) { toast('暂无持仓数据，请先到设置页导入同花顺账本流水'); return; }
   try {"""
 builtin = """$('btnRefresh').addEventListener('click', async () => {
   if (state.key !== 'ths') { loadStrategy(state.key); return; }
