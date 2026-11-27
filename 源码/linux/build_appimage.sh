@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 组合收益回测中枢 v1.0.4 · Linux AppImage 构建
+# 组合收益回测中枢 v1.0.5 · Linux AppImage 构建
 # 离线单页 HTML + 图标 → embedded.py → PyInstaller --onefile → AppDir → squashfs → type2 runtime
 set -euo pipefail
 
@@ -7,7 +7,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 APP=pnlhub
 NAME=组合收益回测中枢
-VER=1.0.4
+VER=1.0.5
 # 解释器：环境变量 PY 优先，否则取 PATH 里的 python3（需已装 PyInstaller）
 if [ -z "${PY:-}" ]; then
     PY="$(command -v python3 || true)"

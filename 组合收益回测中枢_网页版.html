@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1e2a3a">
 <title>组合收益回测中枢</title>
-<!-- build v1.0.4 -->
+<!-- build v1.0.5 -->
 <script>
 /* 首帧定色：状态栏与顶栏（组合收益卡片）同色，避免先黑后闪。
    桥签名 setSystemBars(String color, boolean light)：color=#RRGGBB；
@@ -63,7 +63,13 @@ document.head.appendChild(sc);})();</script>
   .content { padding: 10px; }
 
   /* 指标卡 */
-  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 7px; }
+  .metric-grid.sub { grid-template-columns: 1fr 1fr; }
+  .card.metric { padding: 8px 11px; min-width: 0; }
+  .card.metric .m-val { font-size: clamp(0.98rem, 3.8vw, 1.24rem); }
+  .card.metric .m-sub { font-size: 0.64rem; margin-bottom: 0; }
+  .card.wide { padding: 8px 10px; min-width: 0; }
+  .card.wide .m-stats { border-top: 0; padding-top: 0; }
   .card { background: var(--card); border-radius: var(--r); padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
   .m-label { font-size: 0.7rem; color: var(--ink3); display: flex; align-items: center; gap: 4px; }
   .m-val { font-size: clamp(1.02rem, 4.6vw, 1.32rem); font-weight: 700; color: var(--ink); margin-top: 2px; letter-spacing: -.2px; }
@@ -83,20 +89,20 @@ document.head.appendChild(sc);})();</script>
   .pos { color: var(--red); } .neg { color: var(--green); } .neutral { color: var(--ink2); }
 
   /* 策略切换 */
-  .strategy-bar { display: flex; gap: 6px; margin: 2px 0 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .strategy-bar::-webkit-scrollbar { display: none; }
+  .strategy-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 2px 0 8px; }
   .tab {
-    flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
+    display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0;
     padding: 7px 12px; border-radius: 16px; font-size: 0.72rem; color: var(--ink2);
     background: #fff; border: 1px solid #e2e6ec; cursor: pointer; white-space: nowrap; min-height: 34px; user-select: none;
   }
   .tab.active { background: var(--blue); color: #fff; border-color: var(--blue); font-weight: 600; }
   .tab.import { background: #fff7e6; border-color: #f3c97a; color: #a86800; font-weight: 600; }
-  .tab .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; }
-  /* 页签在窄屏排成 2×2，避免被裁切 */
+  .tab .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .55; flex: 0 0 6px; }
+  .tab .tab-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  /* 三个页签始终一行并行，窄屏只收紧内边距 */
   @media (max-width: 560px) {
-    .strategy-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; overflow: visible; }
-    .strategy-bar .tab { padding: 8px 6px; font-size: 0.69rem; }
+    .strategy-bar { gap: 4px; }
+    .strategy-bar .tab { padding: 7px 3px; font-size: 0.62rem; }
     /* 窄屏收紧表格，隐藏「天数」列，避免横向滚动 */
     table { font-size: 0.63rem; }
     th, td { padding: 6px 3px; }
@@ -290,10 +296,10 @@ document.head.appendChild(sc);})();</script>
     .metric-grid { gap: 6px; }
     .m-note { display: none; }
     .chart { height: 260px; }
-    .strategy-bar .tab { padding: 6px 10px; font-size: 0.68rem; }
+    .strategy-bar .tab { padding: 6px 2px; font-size: 0.6rem; gap: 3px; }
   }
   @media (max-width: 340px) {
-    .metric-grid { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: 1fr 1fr; }
     /* 超窄屏再隐藏「占比」，保证不横向滚动 */
     table th:nth-child(8), table td:nth-child(8) { display: none; }
   }
@@ -312,29 +318,45 @@ document.head.appendChild(sc);})();</script>
   <div class="content">
     <!-- 指标卡：左 总资产 / 右 持有市值 -->
     <div class="metric-grid">
-      <div class="card">
+      <div class="card metric">
         <div class="m-label">总资产</div>
         <div class="m-val" id="assetValue">—</div>
         <div class="m-sub" id="assetSub">—</div>
-        <div class="m-note" id="assetNote">入金合计 ＋ 持有盈亏 ＋ 货币收益 ＋ 清仓收益</div>
+      </div>
+      <div class="card metric">
+        <div class="m-label">持仓市值</div>
+        <div class="m-val" id="mvValue">—</div>
+        <div class="m-sub" id="mvSub">—</div>
+      </div>
+    </div>
+    <div class="metric-grid">
+      <div class="card metric">
+        <div class="m-label">持仓盈亏</div>
+        <div class="m-val" id="mvPnl">—</div>
+        <div class="m-sub" id="mvPnlRate">—</div>
+      </div>
+      <div class="card metric">
+        <div class="m-label">今日盈亏</div>
+        <div class="m-val" id="dayPnl">—</div>
+        <div class="m-sub" id="dayPct">—</div>
+      </div>
+    </div>
+    <div class="metric-grid sub">
+      <div class="card wide">
         <div class="m-stats">
           <div class="ms-item tappable" id="cashYieldItem">
             <div class="ms-label">货币收益</div>
             <div class="ms-val neutral" id="cashYield">—</div>
           </div>
           <div class="ms-item"><div class="ms-label">清仓收益</div><div class="ms-val" id="realizedYield">—</div></div>
-          <div class="ms-item"><div class="ms-label">到手分红</div><div class="ms-val" id="dividendYield">—</div></div>
+          <div class="ms-item"><div class="ms-label">累计分红</div><div class="ms-val" id="dividendYield">—</div></div>
         </div>
       </div>
-      <div class="card">
-        <div class="m-label">持有市值</div>
-        <div class="m-val" id="mvValue">—</div>
-        <div class="m-sub" id="mvSub">—</div>
-        <div class="m-note" id="mvNote">数据源：同花顺投资账本</div>
+      <div class="card wide">
         <div class="m-stats">
-          <div class="ms-item"><div class="ms-label">持有成本</div><div class="ms-val" id="mvCost">—</div></div>
-          <div class="ms-item"><div class="ms-label">持有盈亏</div><div class="ms-val" id="mvPnl">—</div></div>
-          <div class="ms-item"><div class="ms-label">盈亏比例</div><div class="ms-val" id="mvPnlRate">—</div></div>
+          <div class="ms-item"><div class="ms-label">仓位程度</div><div class="ms-val" id="posLevel">—</div></div>
+          <div class="ms-item"><div class="ms-label">最大回撤</div><div class="ms-val" id="maxDD">—</div></div>
+          <div class="ms-item"><div class="ms-label">成本股息率</div><div class="ms-val" id="divYieldOnCost">—</div></div>
         </div>
       </div>
     </div>
@@ -676,7 +698,7 @@ function buildSeries(trades, klines) {
       price: +close.toFixed(2), prev: prevBar ? +prevBar.c.toFixed(2) : +close.toFixed(2), first: p.first
     });
   }
-  holdings.sort((a, b) => b.qty * b.price - a.qty * a.price);
+  holdings.sort((a, b) => a.qty * a.price - b.qty * b.price);
 
   return { dates: series.map(r => r[0]), ohlc: series.map(r => [r[1], r[2], r[3], r[4]]),
            cost: costLine, holdings,
@@ -818,10 +840,10 @@ const state = { key: 'ths', data: null, chart: null,
 /* ============ 页面管理：仅同花顺账本为内置，其余均为自定义页 ============ */
 const DEFAULT_PAGES = [
   { key: 'ths', name: '同花顺投资账本', builtin: true, visible: true },
-  { key: 'schloss', name: '施洛斯A股策略', builtin: false, visible: true },
-  { key: 'bigfish', name: '大肥鱼A股策略', builtin: false, visible: true },
-  { key: 'c_holddiva', name: '持股持息A策略', builtin: false, visible: true }
+  { key: 'schloss', name: '施洛斯A股指数', builtin: false, visible: true },
+  { key: 'bigfish', name: '大肥猫A股指数', builtin: false, visible: true }
 ];
+const PAGE_RENAME = { '施洛斯A股策略': '施洛斯A股指数', '大肥鱼A股策略': '大肥猫A股指数' };
 const BUILTIN_PAGES = DEFAULT_PAGES.filter(p => p.builtin);
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c =>
@@ -833,14 +855,15 @@ function normalizePages(list) {
   DEFAULT_PAGES.forEach(def => {
     const f = src.find(p => p && p.key === def.key);
     // 内置页始终保留；非内置默认页：首次使用自动建，已有配置时只在被删的情况下保留删除状态
-    if (!def.builtin && list && !f && def.key !== 'c_holddiva') return;
+    if (!def.builtin && list && !f) return;
     const nm = f && String(f.name || '').trim();
-    out.push({ key: def.key, name: (nm || def.name).slice(0, 24),
+    const migrated = nm && PAGE_RENAME[nm] ? PAGE_RENAME[nm] : nm;
+    out.push({ key: def.key, name: (migrated || def.name).slice(0, 24),
                builtin: !!def.builtin, visible: !f || f.visible !== false });
     seen.add(def.key);
   });
   src.forEach(p => {
-    if (!p || typeof p.key !== 'string' || !/^c_[a-z0-9_]+$/.test(p.key) || seen.has(p.key)) return;
+    if (!p || typeof p.key !== 'string' || !/^c_[a-z0-9_]+$/.test(p.key) || seen.has(p.key) || p.key === 'c_holddiva') return;
     const nm = String(p.name || '').trim().slice(0, 24);
     if (!nm) return;
     out.push({ key: p.key, name: nm, builtin: false, visible: p.visible !== false });
@@ -859,7 +882,7 @@ function pageName(key) {
 function visiblePages() { return loadPages().filter(p => p.visible); }
 function renderTabs() {
   $('strategyBar').innerHTML = visiblePages().map(p =>
-    `<div class="tab${p.key === state.key ? ' active' : ''}" data-key="${p.key}" title="${escapeHtml(p.name)}"><span class="dot"></span>${escapeHtml(p.name)}</div>`
+    `<div class="tab${p.key === state.key ? ' active' : ''}" data-key="${p.key}" title="${escapeHtml(p.name)}"><span class="dot"></span><span class="tab-label">${escapeHtml(p.name)}</span></div>`
   ).join('');
 }
 function activatePage(key) {
@@ -971,6 +994,21 @@ function setNav(nav) {
   box.className = 'nav-box ' + (nav >= 1 ? 'pos' : nav < 1 ? 'neg' : '');
 }
 
+// 最大回撤：基于单位净值序列（市值/成本）的峰谷跌幅，返回正数百分比
+function maxDrawdown(data) {
+  const o = data.ohlc || [], c = data.cost || [];
+  if (!o.length) return null;
+  let peak = 0, mdd = 0;
+  o.forEach((row, i) => {
+    const cost = c[i] || 0;
+    const nav = cost > 0 ? row[1] / cost : null;
+    if (nav == null || !isFinite(nav)) return;
+    if (nav > peak) peak = nav;
+    if (peak > 0) mdd = Math.max(mdd, (peak - nav) / peak);
+  });
+  return mdd * 100;
+}
+
 function renderCards(data, extra) {
   const s = data.stats, a = assetCalc(s, extra);
   const pnl = a.pnl, ta = a.ta;
@@ -978,22 +1016,92 @@ function renderCards(data, extra) {
   $('assetSub').innerHTML = a.hasBase
     ? `<span class="neutral">入金合计 ${fmt(a.deposits)} 元</span>`
     : `<span class="neutral">${data.holdings.length} 只持仓</span>`;
-  $('assetNote').textContent = !a.hasBase ? '暂无入金数据 · 仅按持仓市值计'
-    : (a.simple ? '入金合计 ＋ 浮动盈亏（手动策略口径）' : '入金合计 ＋ 持有盈亏 ＋ 货币收益 ＋ 清仓收益');
 
-  // 持有市值
-  const pos = ta > 0 ? (s.mv / ta * 100).toFixed(1) + '%' : '—';
   $('mvValue').innerHTML = fmt(s.mv) + '<small>元</small>';
-  $('mvSub').innerHTML = `<span class="neutral">${data.holdings.length} 只持仓 · 仓位 ${pos}</span>`;
-  $('mvCost').textContent = fmt(s.cost);
+  $('mvSub').innerHTML = `<span class="neutral">${data.holdings.length} 只持仓</span>`;
   $('mvPnl').innerHTML = `<span class="${clsOf(pnl)}">${signed(pnl)}</span>`;
   $('mvPnlRate').innerHTML = `<span class="${clsOf(pnl)}">${(pnl / Math.max(1, s.cost) * 100).toFixed(2)}%</span>`;
+  // 今日盈亏：优先用 stats.dayPnl；同花顺快照无该字段时由行情 prev 现算
+  let day = s.dayPnl;
+  if (day == null) {
+    day = (data.holdings || []).reduce((t, h) => t + (h.price - h.prev) * h.qty, 0);
+  }
+  $('dayPnl').innerHTML = `<span class="${clsOf(day)}">${signed(day)}</span>`;
+  // 今日盈亏百分比 = 今日盈亏 / 昨日持仓市值（昨收×股数）
+  const prevMv = (data.holdings || []).reduce((t, h) => t + (+h.qty || 0) * (+h.prev || 0), 0);
+  const dayPct = prevMv > 0 ? day / prevMv * 100 : null;
+  $('dayPct').innerHTML = dayPct == null ? '<span class="neutral">—</span>'
+    : `<span class="${clsOf(dayPct)}">${dayPct > 0 ? '+' : ''}${dayPct.toFixed(2)}%</span>`;
 
-  const cashSum = a.cashSum;
+  const cashSum = a.cashSum, rz = a.rz, dv = (extra && extra.dividend) || 0;
   $('cashYield').innerHTML = `<span class="${clsOf(cashSum)}">${signed(cashSum)}</span>`;
-  const rz = a.rz, dv = (extra && extra.dividend) || 0;
   $('realizedYield').innerHTML = `<span class="${clsOf(rz)}">${signed(rz)}</span>`;
   $('dividendYield').innerHTML = `<span class="${clsOf(dv)}">${signed(dv)}</span>`;
+
+  // 仓位程度 / 最大回撤 / 成本股息率
+  const pos = ta > 0 ? s.mv / ta * 100 : null;
+  $('posLevel').textContent = pos == null ? '—' : pos.toFixed(1) + '%';
+  const dd = maxDrawdown(data);
+  $('maxDD').innerHTML = dd == null ? '—' : `<span class="green">-${dd.toFixed(2)}%</span>`;
+  // 成本股息率：上一年度年报每股派息 × 股数求和 ÷ 持仓成本市值（异步取数）
+  renderDivYieldOnCost(data);
+}
+
+// -------- 成本股息率：上一年度四个季度分红总和 --------
+const DIV_YEAR = String(new Date().getFullYear() - 1);  // 上一年度年份，覆盖年报/中报/三季报/一季报
+const divPS = {};          // code -> 每股税前派息（元）
+let divFetching = false;
+function fetchDivPS(codes, done) {
+  const need = codes.filter(c => c && divPS[c] == null);
+  if (!need.length) { done && done(); return; }
+  const seq = 'pnl_div_' + Date.now();
+  let left = need.length;
+  function one(code) {
+    const cb = seq + '_' + code;
+    window[cb] = d => {
+      try {
+        const rows = d && d.result && d.result.data;
+        let ps = 0;
+        (rows || []).forEach(r => {
+          // 按报告期年份归属于上一年度：年报(12-31)、中报(06-30)、三季报(09-30)、一季报(03-31) 全部计入
+          if (String(r.REPORT_DATE || '').slice(0, 4) === DIV_YEAR) {
+            // PRETAX_BONUS_RMB 为每 10 股税前派息（元）
+            ps += (+r.PRETAX_BONUS_RMB || 0) / 10;
+          }
+        });
+        divPS[code] = ps;
+      } catch (e) { divPS[code] = 0; }
+      try { delete window[cb]; } catch (e) {}
+      if (--left === 0) { divFetching = false; done && done(); }
+    };
+    const flt = encodeURIComponent('(SECURITY_CODE="' + code + '")');
+    const url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_SHAREBONUS_DET'
+      + '&columns=SECURITY_CODE%2CREPORT_DATE%2CPRETAX_BONUS_RMB&filter=' + flt
+      + '&pageNumber=1&pageSize=60&sortColumns=REPORT_DATE&sortTypes=-1&callback=' + cb;
+    loadScript(url).catch(() => {
+      divPS[code] = 0;
+      try { delete window[cb]; } catch (e) {}
+      if (--left === 0) { divFetching = false; done && done(); }
+    });
+  }
+  divFetching = true;
+  need.forEach(one);
+}
+function renderDivYieldOnCost(data, force) {
+  const hs = data.holdings || [];
+  const costMv = hs.reduce((t, h) => t + (+h.qty || 0) * (+h.cost || 0), 0);
+  const codes = hs.map(h => h.code).filter(Boolean);
+  const calc = () => {
+    if (!(costMv > 0)) { $('divYieldOnCost').textContent = '—'; return; }
+    // 仅当所有持仓都已有派息数据时才显示，避免阶段性偏小值
+    const complete = codes.every(c => divPS[c] != null);
+    if (!complete) { $('divYieldOnCost').textContent = '—'; return; }
+    const divSum = hs.reduce((t, h) => t + (divPS[h.code] || 0) * (+h.qty || 0), 0);
+    const yoc = divSum / costMv * 100;
+    $('divYieldOnCost').innerHTML = `<span class="${clsOf(yoc)}">${yoc.toFixed(2)}%</span>`;
+  };
+  calc();
+  if (force || (!divFetching && codes.some(c => divPS[c] == null))) fetchDivPS(codes, calc);
 }
 
 function renderTable(holdings, basis) {
@@ -1003,6 +1111,7 @@ function renderTable(holdings, basis) {
     $('holdCount').textContent = '0 只';
     return;
   }
+  holdings = holdings.slice().sort((a, b) => a.qty * a.price - b.qty * b.price); // 明细默认按市值从小到大
   const total = holdings.reduce((s, h) => s + h.qty * h.price, 0) || 1;
   let sumMv = 0, sumPnl = 0, sumCost = 0, sumRatio = 0;
   const rows = holdings.map(h => {
@@ -1017,14 +1126,14 @@ function renderTable(holdings, basis) {
       <td>${fmt0(h.qty)}</td><td>${h.cost.toFixed(3)}</td><td>${h.price.toFixed(2)}</td>
       <td>${fmt0(mv)}</td>
       <td class="${clsOf(rate)}">${(rate * 100).toFixed(2)}%</td>
-      <td>${((basis > 0 ? cost : mv) / (basis > 0 ? basis : total) * 100).toFixed(1)}%</td><td>${days}</td>
+      <td>${((basis > 0 ? cost : mv) / (basis > 0 ? basis : total) * 100).toFixed(2)}%</td><td>${days}</td>
     </tr>`;
   }).join('');
   body.innerHTML = rows +
     `<tr class="sum-row"><td>汇总</td><td>${holdings.length} 只</td><td>—</td><td>—</td><td>—</td>
       <td>${fmt0(sumMv)}</td>
       <td class="${clsOf(sumPnl)}">${(sumPnl / Math.max(1, sumCost) * 100).toFixed(2)}%</td>
-      <td>${sumRatio.toFixed(1)}%</td><td>—</td></tr>`;
+      <td>${sumRatio.toFixed(2)}%</td><td>—</td></tr>`;
   $('holdCount').textContent = holdings.length + ' 只';
 }
 
@@ -1053,7 +1162,7 @@ function thsPayload() {
     extra: { realized: EMBED.stats.realized, dividend: EMBED.stats.dividend,
              deposits: state.deposits },
     meta: { badge: '同花顺账本',
-            sub: '持仓净值日 K（市值÷成本，基准 1.0）· 数据源：同花顺投资账本「大肥鱼日记-5.xlsx」',
+            sub: '持仓净值日 K（市值÷成本，基准 1.0）· 数据源：同花顺投资账本',
             tableSub: '数量与成本来自同花顺账本买卖记录，现价来自行情' }
   };
 }
@@ -1079,13 +1188,14 @@ function showEmptyStrategy(key) {
   const a0 = assetCalc({ mv: 0, cost: 0 }, { deposits: state.deposits, realized: 0, simple: true });
   $('assetValue').innerHTML = fmt(a0.ta) + '<small>元</small>';
   $('assetSub').innerHTML = `<span class="neutral">入金合计 ${fmt(a0.deposits)} 元</span>`;
-  $('assetNote').textContent = '入金合计 ＋ 浮动盈亏（手动策略口径）';
   $('mvValue').innerHTML = '0.00<small>元</small>';
   $('mvSub').textContent = '等待录入';
-  $('mvCost').textContent = '0'; $('mvPnl').textContent = '0.00'; $('mvPnlRate').textContent = '0.00%';
+  $('mvPnl').textContent = '0.00'; $('mvPnlRate').textContent = '0.00%';
+  $('dayPnl').textContent = '0.00'; $('dayPct').textContent = '—';
   $('cashYield').innerHTML = `<span class="${clsOf(a0.cashSum)}">${signed(a0.cashSum)}</span>`;
   $('realizedYield').textContent = '0.00';
   $('dividendYield').textContent = '0.00';
+  $('posLevel').textContent = '—'; $('maxDD').textContent = '—'; $('divYieldOnCost').textContent = '—';
   $('updateTime').textContent = label;
 }
 
@@ -1336,10 +1446,10 @@ function listImportStocks() {
     box.style.display = ''; return;
   }
   box.innerHTML = stocks.map(s =>
-    `<label class="stock-pick"><input type="checkbox" data-code="${s.code}" checked><span class="sp-name">${escapeHtml(s.name)} <span class="sp-meta">${s.code}</span></span><span class="sp-meta">${s.qty > 0 ? s.qty + ' 股' : ''}</span></label>`
+    `<label class="stock-pick"><input type="checkbox" data-code="${s.code}"><span class="sp-name">${escapeHtml(s.name)} <span class="sp-meta">${s.code}</span></span><span class="sp-meta">${s.qty > 0 ? s.qty + ' 股' : ''}</span></label>`
   ).join('');
   box.style.display = '';
-  toast('已列出 ' + stocks.length + ' 只股票，勾选后点「导入选中」');
+  toast('已列出 ' + stocks.length + ' 只股票（默认未勾选），请自行勾选后点「导入选中」');
 }
 $('tradeListStocks').addEventListener('click', listImportStocks);
 $('tradeImportStocks').addEventListener('click', async () => {

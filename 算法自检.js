@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* 组合收益回测中枢 v1.0.4 算法自检：从 HTML 抽函数进 vm，验证核心口径与页面结构。 */
+/* 组合收益回测中枢 v1.0.5 算法自检：从 HTML 抽函数进 vm，验证核心口径与页面结构。 */
 const fs = require('fs');
 const vm = require('vm');
 const path = require('path');
@@ -12,7 +12,7 @@ function ok(cond, msg) { if (cond) { pass++; console.log('  ✓ ' + msg); } else
 
 // ---- 1. 页面结构 ----
 console.log('\n[1] 页面结构');
-ok(html.includes('v1.0.4') || html.includes('组合收益回测中枢'), '版本/产品名称存在');
+ok(html.includes('v1.0.5') || html.includes('组合收益回测中枢'), '版本/产品名称存在');
 ok(!html.includes('data-page-node-id'), '无预览器回写属性');
 ok(!html.includes('cdn.bootcdn.net'), 'CDN 已内联（无外链依赖）');
 ok(html.includes('const EMBED = {"dates":[],"ohlc":[],"cost":[],"holdings":[]'), 'EMBED 为无数据空态');
@@ -30,7 +30,7 @@ ok(html.includes('function thsLoad('), 'thsLoad 统一装载函数存在');
 ok(/const p = thsLoad\(\)/.test(html), 'boot 从快照恢复同花顺页');
 ok(/function renderTabs\(/.test(html), '动态页签渲染函数存在');
 ok(html.includes('pnl_pages_v1'), '页面配置存储键存在');
-ok(html.includes('持股持息A策略'), '持股持息A策略默认页存在');
+ok(!html.includes('持股持息A策略') && html.includes('施洛斯A股指数') && html.includes('大肥猫A股指数'), '持股持息已移除且策略页改名');
 ok(html.includes('function stocksOfPage('), '跨页股票提取函数存在');
 ok(html.includes('tradeImportStocks'), '手动添加弹层跨页导入入口存在');
 ok(!html.includes('setTabNav') && !html.includes('tabNav_'), '页签净值显示已移除');
@@ -78,8 +78,8 @@ if (bs) {
 // ---- 4. 交付物存在性（发行版不入库，未构建时跳过而非判失败）----
 console.log('\n[4] 交付物');
 for (const f of [
-  '发行版/组合收益回测中枢-发行版1.0.4.apk',
-  '发行版/组合收益回测中枢-发行版1.0.4.AppImage',
+  '发行版/组合收益回测中枢-发行版1.0.5.apk',
+  '发行版/组合收益回测中枢-发行版1.0.5.AppImage',
 ]) {
   if (fs.existsSync(path.join(V, f))) ok(true, f + ' 存在');
   else console.log('  - ' + f + ' 未构建，跳过');
